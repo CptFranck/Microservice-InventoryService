@@ -1,8 +1,11 @@
 package com.CptFranck.InventoryService.service;
 
 import com.CptFranck.InventoryService.entity.EventEntity;
+import com.CptFranck.InventoryService.entity.VenueEntity;
 import com.CptFranck.InventoryService.repository.EventRepository;
+import com.CptFranck.InventoryService.repository.VenueRepository;
 import com.CptFranck.InventoryService.response.EventInventoryResponse;
+import com.CptFranck.InventoryService.response.VenueInventoryResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +16,11 @@ public class InventoryService {
 
 
     private final EventRepository eventRepository;
+    private final VenueRepository venueRepository;
 
-    public InventoryService(EventRepository eventRepository) {
+    public InventoryService(EventRepository eventRepository, VenueRepository venueRepository) {
         this.eventRepository = eventRepository;
+        this.venueRepository = venueRepository;
     }
 
     public List<EventInventoryResponse> getAllEvents() {
@@ -27,5 +32,16 @@ public class InventoryService {
                 .venue(event.getVenue())
                 .build())
                 .collect(Collectors.toList());
+    }
+
+    public VenueInventoryResponse getVenueInformation(Long venueId) {
+        final VenueEntity venue = venueRepository.findById(venueId).orElse(null);
+
+        assert venue != null;
+        return VenueInventoryResponse.builder()
+                        .venueId(venue.getId())
+                        .venueName(venue.getName())
+                        .totalCapacity(venue.getTotalCapacity())
+                        .build();
     }
 }
