@@ -1,7 +1,7 @@
 package com.CptFranck.InventoryService.controller;
 
 import com.CptFranck.InventoryService.response.EventInventoryResponse;
-import com.CptFranck.InventoryService.service.inventoryService;
+import com.CptFranck.InventoryService.service.InventoryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,9 +13,9 @@ import java.util.List;
 @RequestMapping("api/v1")
 public class InventoryController {
 
-    private final com.CptFranck.InventoryService.service.inventoryService inventoryService;
+    private final InventoryService inventoryService;
 
-    public InventoryController(inventoryService inventoryService) {
+    public InventoryController(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
     }
 
