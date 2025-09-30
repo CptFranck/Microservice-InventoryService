@@ -18,15 +18,12 @@ public class VenueEntity {
     @Column(name = "id")
     private Long id;
 
-    @Id
     @Column(name = "name")
     private String name;
 
-    @Id
     @Column(name = "address")
     private String address;
 
-    @Id
     @Column(name = "total_capacity")
     private Long totalCapacity;
 }
