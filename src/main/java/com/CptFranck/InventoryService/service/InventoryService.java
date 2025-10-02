@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Service
 public class InventoryService {
 
-
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
 
@@ -43,5 +42,19 @@ public class InventoryService {
                         .venueName(venue.getName())
                         .totalCapacity(venue.getTotalCapacity())
                         .build();
+    }
+
+
+    public EventInventoryResponse getEventInventory(final Long eventId) {
+        final EventEntity event = eventRepository.findById(eventId).orElse(null);
+
+        assert event != null;
+        return EventInventoryResponse.builder()
+                .event(event.getName())
+                .capacity(event.getLeftCapacity())
+                .venue(event.getVenue())
+                .ticketPrice(event.getTicketPrice())
+                .eventId(event.getId())
+                .build();
     }
 }
