@@ -4,8 +4,8 @@ import com.CptFranck.InventoryService.entity.EventEntity;
 import com.CptFranck.InventoryService.entity.VenueEntity;
 import com.CptFranck.InventoryService.repository.EventRepository;
 import com.CptFranck.InventoryService.repository.VenueRepository;
-import com.CptFranck.InventoryService.response.EventInventoryResponse;
-import com.CptFranck.InventoryService.response.VenueInventoryResponse;
+import com.CptFranck.InventoryService.dto.EventInventoryResponse;
+import com.CptFranck.InventoryService.dto.VenueInventoryResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

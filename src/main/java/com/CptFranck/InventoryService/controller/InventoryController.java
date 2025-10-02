@@ -1,7 +1,7 @@
 package com.CptFranck.InventoryService.controller;
 
-import com.CptFranck.InventoryService.response.EventInventoryResponse;
-import com.CptFranck.InventoryService.response.VenueInventoryResponse;
+import com.CptFranck.InventoryService.dto.EventInventoryResponse;
+import com.CptFranck.InventoryService.dto.VenueInventoryResponse;
 import com.CptFranck.InventoryService.service.InventoryService;
 import org.springframework.web.bind.annotation.*;
 

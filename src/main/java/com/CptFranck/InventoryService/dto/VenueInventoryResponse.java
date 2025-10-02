@@ -1,4 +1,4 @@
-package com.CptFranck.InventoryService.response;
+package com.CptFranck.InventoryService.dto;
 
 
 import lombok.AllArgsConstructor;
