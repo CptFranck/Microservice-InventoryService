@@ -13,9 +13,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventInventoryResponse {
+
     private Long eventId;
+
     private String event;
+
     private Long capacity;
+
     private VenueEntity venue;
+
     private BigDecimal ticketPrice;
 }
