@@ -1,11 +1,10 @@
 package com.CptFranck.InventoryService.service;
 
+import com.CptFranck.InventoryService.dto.*;
 import com.CptFranck.InventoryService.entity.EventEntity;
 import com.CptFranck.InventoryService.entity.VenueEntity;
 import com.CptFranck.InventoryService.repository.EventRepository;
 import com.CptFranck.InventoryService.repository.VenueRepository;
-import com.CptFranck.InventoryService.dto.EventInventoryResponse;
-import com.CptFranck.InventoryService.dto.VenueInventoryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,9 @@ import java.util.stream.Collectors;
 public class InventoryService {
 
     private final EventRepository eventRepository;
+
     private final VenueRepository venueRepository;
+
 
     public InventoryService(EventRepository eventRepository, VenueRepository venueRepository) {
         this.eventRepository = eventRepository;
@@ -46,14 +47,6 @@ public class InventoryService {
                         .build();
     }
 
-    public void updateEventCapacity(final Long eventId, final Long ticketsBooked) {
-        final EventEntity event = eventRepository.findById(eventId).orElse(null);
-        assert event != null;
-        event.setLeftCapacity(event.getLeftCapacity() - ticketsBooked);
-        eventRepository.saveAndFlush(event);
-        log.info("Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
-    }
-
     public EventInventoryResponse getEventInventory(final Long eventId) {
         final EventEntity event = eventRepository.findById(eventId).orElse(null);
 
@@ -65,5 +58,13 @@ public class InventoryService {
                 .ticketPrice(event.getTicketPrice())
                 .eventId(event.getId())
                 .build();
+    }
+
+    public void updateEventCapacity(final Long eventId, final Long ticketsBooked) {
+        final EventEntity event = eventRepository.findById(eventId).orElse(null);
+        assert event != null;
+        event.setLeftCapacity(event.getLeftCapacity() - ticketsBooked);
+        eventRepository.saveAndFlush(event);
+        log.info("Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
     }
 }

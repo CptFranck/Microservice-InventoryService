@@ -1,6 +1,7 @@
 spring:
   application:
     name: InventoryService
+
   # MySQL
   datasource:
     url: jdbc:mysql://localhost:3306/ticketing
