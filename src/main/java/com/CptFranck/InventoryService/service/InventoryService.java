@@ -5,9 +5,15 @@ import com.CptFranck.InventoryService.entity.EventEntity;
 import com.CptFranck.InventoryService.entity.VenueEntity;
 import com.CptFranck.InventoryService.repository.EventRepository;
 import com.CptFranck.InventoryService.repository.VenueRepository;
+import com.CptFranck.dto.BookingConfirmed;
+import com.CptFranck.dto.BookingEvent;
+import com.CptFranck.dto.BookingRejected;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,10 +25,15 @@ public class InventoryService {
 
     private final VenueRepository venueRepository;
 
+    private final KafkaTemplate<String, BookingRejected> rejectedKafkaTemplate;
 
-    public InventoryService(EventRepository eventRepository, VenueRepository venueRepository) {
+    private final KafkaTemplate<String, BookingConfirmed> confirmedKafkaTemplate;
+
+    public InventoryService(EventRepository eventRepository, VenueRepository venueRepository, KafkaTemplate<String, BookingConfirmed> confirmedKafkaTemplate, KafkaTemplate<String, BookingRejected> rejectedKafkaTemplate) {
         this.eventRepository = eventRepository;
         this.venueRepository = venueRepository;
+        this.rejectedKafkaTemplate = rejectedKafkaTemplate;
+        this.confirmedKafkaTemplate = confirmedKafkaTemplate;
     }
 
     public List<EventInventoryResponse> getAllEvents() {
@@ -60,11 +71,43 @@ public class InventoryService {
                 .build();
     }
 
-    public void updateEventCapacity(final Long eventId, final Long ticketsBooked) {
-        final EventEntity event = eventRepository.findById(eventId).orElse(null);
-        assert event != null;
+    @KafkaListener(topics = "booking-event", groupId = "inventory-service")
+    public void handleBookingRequested(BookingEvent event) {
+        log.info("Received booking request: {}", event);
+
+        boolean reserved = tryReserveTickets(event.getEventId(), event.getTicketCount());
+        if (reserved) {
+            BookingConfirmed confirmed = new BookingConfirmed();
+            confirmed.setUserId(event.getUserId());
+            confirmed.setEventId(event.getEventId());
+            confirmed.setTicketCount(event.getTicketCount());
+            confirmed.setTotalPrice(calculateTotal(event.getEventId(), Math.toIntExact(event.getTicketCount())));
+            confirmedKafkaTemplate.send("booking-confirmed", confirmed);
+        } else {
+            BookingRejected rejected = new BookingRejected();
+            rejected.setUserId(event.getUserId());
+            rejected.setEventId(event.getEventId());
+            rejected.setTicketCount(event.getTicketCount());
+            rejected.setReason("Not enough tickets");
+            rejectedKafkaTemplate.send("booking-rejected", rejected);
+        }
+    }
+
+    private boolean tryReserveTickets(Long eventId, Long ticketsBooked) {
+        final EventEntity event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+        if (event.getLeftCapacity() < ticketsBooked) {
+            log.info("No enough tickets for event: {}", eventId);
+            return false;
+        }
+
         event.setLeftCapacity(event.getLeftCapacity() - ticketsBooked);
-        eventRepository.saveAndFlush(event);
+        eventRepository.save(event);
+
         log.info("Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
+        return true;
+    }
+
+    private BigDecimal calculateTotal(Long eventId, int count) {
+        return eventRepository.findById(eventId).orElseThrow().getTicketPrice().multiply(BigDecimal.valueOf(count));
     }
 }
