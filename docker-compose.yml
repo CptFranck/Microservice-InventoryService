@@ -19,6 +19,7 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 3000
@@ -43,6 +44,7 @@ services:
     image: provectuslabs/kafka-ui:latest
     ports:
       - "8084:8080"
+    restart: always
     depends_on:
       - kafka-broker
     environment:
@@ -54,6 +56,7 @@ services:
     image: confluentinc/cp-schema-registry:7.5.0
     hostname: kafka-schema-registry
     container_name: kafka-schema-registry
+    restart: always
     depends_on:
       - kafka-broker
     ports:
