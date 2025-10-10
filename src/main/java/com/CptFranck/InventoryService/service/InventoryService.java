@@ -73,7 +73,7 @@ public class InventoryService {
 
     @KafkaListener(topics = "booking-event", groupId = "inventory-service")
     public void handleBookingRequested(BookingEvent event) {
-        log.info("Received booking request: {}", event);
+        log.info("Received booking event: {}", event);
 
         boolean reserved = tryReserveTickets(event.getEventId(), event.getTicketCount());
         if (reserved) {
@@ -82,6 +82,8 @@ public class InventoryService {
             confirmed.setEventId(event.getEventId());
             confirmed.setTicketCount(event.getTicketCount());
             confirmed.setTotalPrice(calculateTotal(event.getEventId(), Math.toIntExact(event.getTicketCount())));
+            log.info("Emit booking confirmed: {}", event);
+
             confirmedKafkaTemplate.send("booking-confirmed", confirmed);
         } else {
             BookingRejected rejected = new BookingRejected();
@@ -89,6 +91,8 @@ public class InventoryService {
             rejected.setEventId(event.getEventId());
             rejected.setTicketCount(event.getTicketCount());
             rejected.setReason("Not enough tickets");
+            log.info("Emit booking rejected: {}", event);
+
             rejectedKafkaTemplate.send("booking-rejected", rejected);
         }
     }
@@ -96,14 +100,14 @@ public class InventoryService {
     private boolean tryReserveTickets(Long eventId, Long ticketsBooked) {
         final EventEntity event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
         if (event.getLeftCapacity() < ticketsBooked) {
-            log.info("No enough tickets for event: {}", eventId);
+            log.info("Reservation failed: No enough tickets for event: {}", eventId);
             return false;
         }
 
         event.setLeftCapacity(event.getLeftCapacity() - ticketsBooked);
         eventRepository.save(event);
 
-        log.info("Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
+        log.info("Reservation succeed :Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
         return true;
     }
 
