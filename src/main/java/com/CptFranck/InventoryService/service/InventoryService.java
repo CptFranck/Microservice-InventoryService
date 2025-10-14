@@ -3,6 +3,7 @@ package com.CptFranck.InventoryService.service;
 import com.CptFranck.InventoryService.dto.*;
 import com.CptFranck.InventoryService.entity.EventEntity;
 import com.CptFranck.InventoryService.entity.VenueEntity;
+import com.CptFranck.InventoryService.model.ReservationResult;
 import com.CptFranck.InventoryService.repository.EventRepository;
 import com.CptFranck.InventoryService.repository.VenueRepository;
 import com.CptFranck.dto.BookingConfirmed;
@@ -76,8 +77,8 @@ public class InventoryService {
     public void handleBookingRequested(BookingEvent event) {
         log.info("Received booking event: {}", event);
 
-        boolean reserved = tryReserveTickets(event.getEventId(), event.getTicketCount());
-        if (reserved) {
+        ReservationResult reservationResult = tryReserveTickets(event.getEventId(), event.getTicketCount());
+        if (reservationResult.isSuccess()) {
             BookingConfirmed confirmed = new BookingConfirmed();
             confirmed.setUserId(event.getUserId());
             confirmed.setEventId(event.getEventId());
@@ -91,31 +92,31 @@ public class InventoryService {
             rejected.setUserId(event.getUserId());
             rejected.setEventId(event.getEventId());
             rejected.setTicketCount(event.getTicketCount());
-            rejected.setReason("Not enough tickets");
+            rejected.setReason(reservationResult.getReason());
             log.info("Emit booking rejected: {}", event);
 
             rejectedKafkaTemplate.send("booking-rejected", rejected);
         }
     }
 
-    private boolean tryReserveTickets(Long eventId, Long ticketsBooked) {
+    private ReservationResult tryReserveTickets(Long eventId, Long ticketsBooked) {
         final EventEntity event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
 
         if (10 < ticketsBooked) {
             log.info("Reservation failed: can't booked more than 10 tickets");
-            return false;
+            return ReservationResult.failure("Can't booked more than 10 tickets");
         }
 
         if (event.getLeftCapacity() < ticketsBooked) {
             log.info("Reservation failed: No enough tickets for event: {}", eventId);
-            return false;
+            return ReservationResult.failure("No enough tickets for event");
         }
 
         event.setLeftCapacity(event.getLeftCapacity() - ticketsBooked);
         eventRepository.save(event);
 
         log.info("Reservation succeed :Updated event capacity for event id: {} with tickets booked: {}", eventId, ticketsBooked);
-        return true;
+        return ReservationResult.success();
     }
 
     private BigDecimal calculateTotal(Long eventId, int count) {
