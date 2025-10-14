@@ -100,6 +100,12 @@ public class InventoryService {
 
     private boolean tryReserveTickets(Long eventId, Long ticketsBooked) {
         final EventEntity event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+
+        if (10 < ticketsBooked) {
+            log.info("Reservation failed: can't booked more than 10 tickets");
+            return false;
+        }
+
         if (event.getLeftCapacity() < ticketsBooked) {
             log.info("Reservation failed: No enough tickets for event: {}", eventId);
             return false;
