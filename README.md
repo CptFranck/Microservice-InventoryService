@@ -27,6 +27,8 @@ It exposes REST endpoints to retrieve and manage inventory information and publi
 
 ## 🧩 Architecture Integration
 
+![Architecture du projet](docs/schemaProject.png)
+
 This service is part of a **5-repository microservice ecosystem**:
 
 1. **Common** – Shared DTOs and utilities used across services.  
