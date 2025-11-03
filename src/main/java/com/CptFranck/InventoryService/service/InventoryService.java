@@ -79,20 +79,22 @@ public class InventoryService {
 
         ReservationResult reservationResult = tryReserveTickets(event.getEventId(), event.getTicketCount());
         if (reservationResult.isSuccess()) {
-            BookingConfirmed confirmed = new BookingConfirmed();
-            confirmed.setUserId(event.getUserId());
-            confirmed.setEventId(event.getEventId());
-            confirmed.setTicketCount(event.getTicketCount());
-            confirmed.setTotalPrice(calculateTotal(event.getEventId(), Math.toIntExact(event.getTicketCount())));
+            BookingConfirmed confirmed = new BookingConfirmed(
+                    event.getUserId(),
+                    event.getEventId(),
+                    event.getTicketCount(),
+                    calculateTotal(event.getEventId(), Math.toIntExact(event.getTicketCount()))
+            );
             log.info("Emit booking confirmed: {}", event);
 
             confirmedKafkaTemplate.send("booking-confirmed", confirmed);
         } else {
-            BookingRejected rejected = new BookingRejected();
-            rejected.setUserId(event.getUserId());
-            rejected.setEventId(event.getEventId());
-            rejected.setTicketCount(event.getTicketCount());
-            rejected.setReason(reservationResult.getReason());
+            BookingRejected rejected = new BookingRejected(
+                    event.getUserId(),
+                    event.getEventId(),
+                    event.getTicketCount(),
+                    reservationResult.getReason()
+            );
             log.info("Emit booking rejected: {}", event);
 
             rejectedKafkaTemplate.send("booking-rejected", rejected);
