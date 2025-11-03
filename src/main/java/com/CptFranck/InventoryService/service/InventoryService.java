@@ -79,7 +79,7 @@ public class InventoryService {
 
         ReservationResult reservationResult = tryReserveTickets(event.getEventId(), event.getTicketCount());
         if (reservationResult.isSuccess()) {
-            BookingConfirmed confirmed = new BookingConfirmed(
+            final BookingConfirmed confirmed = new BookingConfirmed(
                     event.getUserId(),
                     event.getEventId(),
                     event.getTicketCount(),
@@ -89,7 +89,7 @@ public class InventoryService {
 
             confirmedKafkaTemplate.send("booking-confirmed", confirmed);
         } else {
-            BookingRejected rejected = new BookingRejected(
+            final BookingRejected rejected = new BookingRejected(
                     event.getUserId(),
                     event.getEventId(),
                     event.getTicketCount(),
