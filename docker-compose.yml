@@ -105,8 +105,10 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      CUSTOMER_SERVICE_API_URL: http://localhost:8086/api/v1
     volumes:
       - ./docker/keycloak/realms/:/opt/keycloak/data/import/
+      - ../KeycloakSpi/target/keycloak-spi-1.0.0.jar:/opt/keycloak/providers/keycloak-spi-1.0.0.jar
 
 volumes:
   db-data:
