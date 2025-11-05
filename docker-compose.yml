@@ -105,8 +105,9 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      CUSTOMER_SERVICE_API_URL: http://localhost:8086/api/v1
+      CUSTOMER_SERVICE_API_URL: http://host.docker.internal:8086/api/v1
     volumes:
+      - keycloak_data:/opt/keycloak/data
       - ./docker/keycloak/realms/:/opt/keycloak/data/import/
       - ../KeycloakSpi/target/keycloak-spi-1.0.0.jar:/opt/keycloak/providers/keycloak-spi-1.0.0.jar
 
@@ -129,5 +130,7 @@ volumes:
   kafka-secrets:
     name: kafka_secrets
 
+  keycloak_data:
+    name: keycloak_data
   keycloak-db-data:
     name: keycloak_db
