@@ -1,7 +1,8 @@
-ALTER TABLE `order` DROP FOREIGN KEY fk_order_customer;
+ALTER TABLE `order`
+    DROP FOREIGN KEY fk_order_customer;
 
 ALTER TABLE customer
-    MODIFY COLUMN id VARCHAR(36) PRIMARY KEY;
+    MODIFY COLUMN id VARCHAR(36);
 
 ALTER TABLE `order`
     MODIFY COLUMN customer_id VARCHAR(36);
