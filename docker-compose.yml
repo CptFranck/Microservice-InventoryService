@@ -106,7 +106,7 @@ services:
       KC_DB_PASSWORD: password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      JWT_URI: http://localhost:8091/realms/ticketing-security-realm/protocol/openid-connect/token
+      JWT_URI: http://localhost:8080/realms/ticketing-security-realm/protocol/openid-connect/token
       JWT_CLIENT_ID: event-listener-client
       JWT_CLIENT_SECRET: PaBXlp163L3XxaQQXhYNKRPACekDNRdG
       CUSTOMER_SERVICE_API_URL: http://host.docker.internal:8086/api/v1
